@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <form method="POST">{% csrf_token %}
+        ad<input id="name" type="text" name="name"><br>
+        soyad<input id="surname" type="text" name="surname"><br>
+        dogum yili<input id="birth_date" type="number" name="birth_date"><br>
+        tc<input id="tc_no" type="number" name="tc_no"><br>
+        telefon<input id="tel_no"  type="number" name="tel_no"><br>
+        email<input id="email"  type="text" name="email"><br>
+        <input id="login" type="submit" value="Login"><br>
+    </form>
+</body>
+</html>
