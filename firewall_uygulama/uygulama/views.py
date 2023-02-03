@@ -5,6 +5,8 @@ from .models import User, Sms
 from .sms_api import *
 from .kps_api import *
 import subprocess
+import requests
+import time
 
 
 def login_page(request):
@@ -36,9 +38,9 @@ def sms(request):
         data = Sms(sms_code=validation_code, confirmation=confirmation)
         data.save()
         if confirmation:
-            remote_ip = "clienti ip" #user ip
-            subprocess.call(["iptables","-t", "nat", "-I", "PREROUTING","1", "-s", remote_ip, "-j" ,"ACCEPT"])
-            subprocess.call(["iptables", "-I", "FORWARD", "-s", remote_ip, "-j" ,"ACCEPT"])
+            remote_ip = "clienti ip"  # user ip
+            subprocess.call(["iptables", "-t", "nat", "-I", "PREROUTING", "1", "-s", remote_ip, "-j", "ACCEPT"])
+            subprocess.call(["iptables", "-I", "FORWARD", "-s", remote_ip, "-j", "ACCEPT"])
             return redirect(request, 'uygulama/page.html', name=name)
         else:
             return 'Hatalı Kod Girişi'
@@ -46,5 +48,20 @@ def sms(request):
 
 
 def page(request):
-
+    keep_alive()
     return render(request, 'uygulama/page.html')
+
+
+def keep_alive():
+    while True:
+        try:
+            # Keep alive request
+            response = requests.get("http://www.example.com")
+            if response.status_code == 200:
+                print("Keep alive successful")
+            else:
+                print("Keep alive failed")
+        except:
+            print("Keep alive failed")
+        # Wait for next keep alive attempt
+        time.sleep(30)
