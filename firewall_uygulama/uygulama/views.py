@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.http import request
 from django.shortcuts import render, redirect
-from .models import User
+from .models import User, Sms
 from .sms_api import *
 from .kps_api import *
+from django.views import generic
 
 
 def login_page(request):
@@ -30,9 +31,12 @@ def sms(request):
     if request.method == 'POST':
         validation_code = request.POST['validation_code']
         email = request.session.get('email')
-
-        if check_verification_token(email, validation_code):
-            return render(request, 'uygulama/page.html')
+        name = request.session.get('name')
+        confirmation = check_verification_token(email, validation_code)
+        data = Sms(sms_code=validation_code, confirmation=confirmation)
+        data.save()
+        if confirmation:
+            return redirect(request, 'uygulama/page.html', name=name)
         else:
             return 'Hatalı Kod Girişi'
     return render(request, 'uygulama/sms.html')

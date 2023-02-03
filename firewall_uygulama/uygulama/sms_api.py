@@ -28,3 +28,6 @@ def check_verification_token(email, token):
         .verification_checks \
         .create(to=email, code=token)
     return check.status == 'approved'
+
+
+
