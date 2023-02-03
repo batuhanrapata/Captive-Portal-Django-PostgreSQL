@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from .models import User, Sms
 from .sms_api import *
 from .kps_api import *
-from django.views import generic
+import subprocess
 
 
 def login_page(request):
@@ -36,6 +36,9 @@ def sms(request):
         data = Sms(sms_code=validation_code, confirmation=confirmation)
         data.save()
         if confirmation:
+            remote_ip = "clienti ip" #user ip
+            subprocess.call(["iptables","-t", "nat", "-I", "PREROUTING","1", "-s", remote_ip, "-j" ,"ACCEPT"])
+            subprocess.call(["iptables", "-I", "FORWARD", "-s", remote_ip, "-j" ,"ACCEPT"])
             return redirect(request, 'uygulama/page.html', name=name)
         else:
             return 'Hatalı Kod Girişi'
@@ -43,4 +46,5 @@ def sms(request):
 
 
 def page(request):
+
     return render(request, 'uygulama/page.html')
