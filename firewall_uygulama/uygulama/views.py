@@ -26,7 +26,7 @@ def login_page(request):
     return render(request, 'uygulama/login.html')
 
 
-def sms(request, verification):
+def sms(request):
     if request.method == 'POST':
         validation_code = request.POST['validation_code']
         email = request.session.get('email')
