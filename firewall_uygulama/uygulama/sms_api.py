@@ -18,7 +18,7 @@ def send_verification(email):
         .services(Service_SID) \
         .verifications \
         .create(to=email, channel='email')
-    return verification.sids
+    return verification.sid
 
 
 def check_verification_token(email, token):

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import request
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import User
 from .sms_api import *
 from .kps_api import *
@@ -20,13 +20,13 @@ def login_page(request):
         data.save()
         if confirmation:
             verification = send_verification(email)
-            return render(request, 'templates/sms.html', verification=verification)
+            return redirect(request, 'templates/sms.html', verification=verification)
         else:
             return 'Kimlik Bilgisi Onaylanmadı!'
     return render(request, 'uygulama/login.html')
 
 
-def sms(request):
+def sms(request, verification):
     if request.method == 'POST':
         validation_code = request.POST['validation_code']
         email = request.session.get('email')
@@ -40,4 +40,3 @@ def sms(request):
 
 def page(request):
     return render(request, 'uygulama/page.html')
-
