@@ -5,6 +5,11 @@ from .models import User
 from .sms_api import *
 from .kps_api import *
 import subprocess
+import http.server
+from  http.server import HTTPServer
+PORT = 9090  # the port in which the captive portal web server listens
+IFACE = "wlan2"  # the interface that captive portal protects
+IP_ADDRESS = "172.16.0.1"  # the ip address of the captive portal (it can be the IP of IFACE)
 
 
 def login_page(request):
@@ -23,16 +28,16 @@ def login_page(request):
             verification = send_verification(email)  # SMS API mesaj gönder
             return redirect(request, 'templates/sms.html')  # sms sayfasına yönlendir
         else:
-            return 'Kimlik Bilgisi Onaylanmadı!'
+            return 'Hatalı Giriş' # KPS API doğrulaması başarısız
     return render(request, 'uygulama/login.html')
 
 
-def sms(request): # sms doğrulama
+def sms(request):  # sms doğrulama
     if request.method == 'POST':
-        validation_code = request.POST['validation_code'] # sms doğrulama kodu
+        validation_code = request.POST['validation_code']  # sms doğrulama kodu
         email = request.session.get('email')
 
-        if check_verification_token(email, validation_code): # SMS API doğrulama
+        if check_verification_token(email, validation_code):  # SMS API doğrulama
             keep_alive(request)  # internet varsa session oluştur
             return redirect(request, 'templates/page.html')
         else:  # doğrulama başarısız
@@ -40,17 +45,54 @@ def sms(request): # sms doğrulama
     return render(request, 'uygulama/sms.html')
 
 
-def page(request):
+def main_page(request):
     return render(request, 'uygulama/page.html')
 
 
-def keep_alive(request): # internet varsa session oluştur
-    remote_IP = request.META.get('REMOTE_ADDR')  # remote ip adresi
-    ping = os.system("ping -c 1 " + "google.com")
-    subprocess.call(["ping", "-c", "1", "google.com"])
-    subprocess.call(["iptables", "-t", "nat", "-I", "PREROUTING", "1", "-s", remote_IP, "-j", "ACCEPT"])
+def keep_alive(request):  # internet varsa session oluştur
+    remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
+    subprocess.call(
+        ["iptables", "-t", "nat", "-I", "PREROUTING", "1", "-s", remote_IP, "-j", "ACCEPT"])  # iptables ayarları
     subprocess.call(["iptables", "-I", "FORWARD", "-s", remote_IP, "-j", "ACCEPT"])
+    allow_and_redirect()
+    ping = os.system("ping -c 1 " + "google.com")
+    subprocess.call(["ping", "-c", "1", "google.com"])  # internet var mı kontrolü
     if ping == 0:
         return True  # internet var
     else:
         return False  # internet yok
+
+
+# captive portal logout code
+def logout():  # logout olunca iptables iptal edilir
+    remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
+    subprocess.call(["iptables", "-t", "nat", "-D", "PREROUTING", "-s", remote_IP, "-j", "ACCEPT"])
+    subprocess.call(["iptables", "-D", "FORWARD", "-s", remote_IP, "-j", "ACCEPT"])
+    return redirect(request, 'templates/login.html')
+
+
+def firewall_logs():
+    subprocess.call(["iptables", "-L", "-n", "-v", "-x", "-t", "nat"]) # iptables logları
+    subprocess.call(["iptables", "-L", "-n", "-v", "-x"])  # iptables logları
+
+
+def allow_and_redirect():  # iptables ayarları yapılır ve captive portal başlatılır (iptables ayarları iptal edilmez)
+    subprocess.call(["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", "53", "-j", "ACCEPT"]) # dns portu
+    subprocess.call(["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "udp", "--dport", "53", "-j", "ACCEPT"])
+    subprocess.call(
+        ["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", str(PORT), "-d", IP_ADDRESS, "-j", "ACCEPT"]) # captive portal portu
+    subprocess.call(["iptables", "-A", "FORWARD", "-i", IFACE, "-j", "DROP"]) # diğer tüm paketler iptal edilir
+    httpd = HTTPServer(('', PORT), http.server.SimpleHTTPRequestHandler) # captive portal başlatılır
+    subprocess.call(
+        ["iptables", "-t", "nat", "-A", "PREROUTING", "-i", IFACE, "-p", "tcp", "--dport", "80", "-j", "DNAT",
+         "--to-destination", IP_ADDRESS + ":" + str(PORT)]) # iptables ayarları yapılır
+
+    subprocess.call(
+        ["iptables", "-t", "nat", "-A", "PREROUTING", "-i", IFACE, "-p", "tcp", "--dport", "80", "-j", "DNAT",
+         "--to-destination", IP_ADDRESS + ":" + str(PORT)]) # iptables ayarları yapılır
+    try:  # captive portal başlatılır
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+
