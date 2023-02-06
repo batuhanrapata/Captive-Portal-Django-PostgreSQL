@@ -49,12 +49,12 @@ def main_page(request):
     return render(request, 'uygulama/page.html')
 
 
-def keep_alive(request):  # internet varsa session oluştur
+def keep_alive(request):  # internet varsa session oluştur ve iptables ayarları yap (internet yoksa iptables iptal edilir)
     remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
     subprocess.call(
         ["iptables", "-t", "nat", "-I", "PREROUTING", "1", "-s", remote_IP, "-j", "ACCEPT"])  # iptables ayarları
     subprocess.call(["iptables", "-I", "FORWARD", "-s", remote_IP, "-j", "ACCEPT"])
-    allow_and_redirect()
+    captive_portal_start()
     ping = os.system("ping -c 1 " + "google.com")
     subprocess.call(["ping", "-c", "1", "google.com"])  # internet var mı kontrolü
     if ping == 0:
@@ -64,19 +64,19 @@ def keep_alive(request):  # internet varsa session oluştur
 
 
 # captive portal logout code
-def logout():  # logout olunca iptables iptal edilir
+def logout():  # logout olunca iptables iptal edilir ve login sayfasına yönlendirilir (logout sayfası oluşturulmadı)
     remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
     subprocess.call(["iptables", "-t", "nat", "-D", "PREROUTING", "-s", remote_IP, "-j", "ACCEPT"])
     subprocess.call(["iptables", "-D", "FORWARD", "-s", remote_IP, "-j", "ACCEPT"])
     return redirect(request, 'templates/login.html')
 
 
-def firewall_logs():
+def firewall_logs(): # iptables logları alınır ve loglar sayfasına yönlendirilir (loglar sayfası oluşturulmadı)
     subprocess.call(["iptables", "-L", "-n", "-v", "-x", "-t", "nat"]) # iptables logları
     subprocess.call(["iptables", "-L", "-n", "-v", "-x"])  # iptables logları
 
 
-def allow_and_redirect():  # iptables ayarları yapılır ve captive portal başlatılır (iptables ayarları iptal edilmez)
+def captive_portal_start():  # iptables ayarları yapılır ve captive portal başlatılır (iptables ayarları iptal edilmez)
     subprocess.call(["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", "53", "-j", "ACCEPT"]) # dns portu
     subprocess.call(["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "udp", "--dport", "53", "-j", "ACCEPT"])
     subprocess.call(
