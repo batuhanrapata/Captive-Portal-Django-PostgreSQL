@@ -2,7 +2,7 @@ from django.db import models
 
 
 # Create your models here.
-class User(models.Model):
+class User(models.Model): # User model
     name = models.CharField(max_length=40)
     surname = models.CharField(max_length=40)
     tc_no = models.CharField(max_length=11)
@@ -16,13 +16,13 @@ class User(models.Model):
         return self.tc_no
 
 
-class Sms(models.Model):
+class Sms(models.Model): # Sms model
     sms_code = models.CharField(max_length=8)
     confirmation = models.BooleanField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
-class Log(models.Model):
+class Log(models.Model): # Log model
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sms = models.ForeignKey(Sms, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
