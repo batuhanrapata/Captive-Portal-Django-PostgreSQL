@@ -26,3 +26,6 @@ class Log(models.Model): # Log model
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sms = models.ForeignKey(Sms, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
+    ip_tables = models.CharField(max_length=40)
+
+
