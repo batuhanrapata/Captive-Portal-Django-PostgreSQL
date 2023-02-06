@@ -25,7 +25,7 @@ def login_page(request):
                     confirmation=confirmation, email=email)
         data.save()  # veritabanına kaydet
         if confirmation:  # KPS API doğrulaması
-            verification = send_verification(email)  # SMS API mesaj gönder
+            send_verification(email)  # SMS API mesaj gönder
             return redirect(request, 'templates/sms.html')  # sms sayfasına yönlendir
         else:
             return 'Hatalı Giriş' # KPS API doğrulaması başarısız
