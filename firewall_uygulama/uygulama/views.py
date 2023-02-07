@@ -76,7 +76,7 @@ def logout():  # logout olunca iptables iptal edilir ve login sayfasına yönlen
 
 def firewall_logs():  # iptables logları alınır ve loglar sayfasına yönlendirilir (loglar sayfası oluşturulmadı)
     iptable_logs = subprocess.call(["iptables", "-L", "-n", "-v", "-x", "-t", "nat"])  # iptables logları
-    data = Log(logs=iptable_logs)
+    data = Log(logs=iptable_logs)  # veritabanına kaydet
     data.save()
 
 
