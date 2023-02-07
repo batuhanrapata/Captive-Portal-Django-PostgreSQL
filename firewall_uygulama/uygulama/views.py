@@ -21,11 +21,11 @@ def login_page(request):
         birth_date = request.POST['birth_date']
         tel_no = request.POST['tel_no']
         email = request.POST['email']
-        confirmation = kps(name, surname, tc_no, birth_date)  # KPS API
+        confirmation = kps(name, surname, tc_no, birth_date)  # KPS API doğrulaması
         data = User(name=name, surname=surname, tc_no=tc_no, birth_date=birth_date, tel_no=tel_no,
-                    confirmation=confirmation, email=email)
+                    confirmation=confirmation, email=email) # veritabanına kaydet
         data.save()  # veritabanına kaydet
-        if confirmation:  # KPS API doğrulaması
+        if confirmation:  # KPS API doğrulaması başarılı
             send_verification(email)  # SMS API mesaj gönder
             return redirect(request, 'templates/sms.html')  # sms sayfasına yönlendir
         else:
