@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'fontawesomefree',
     'uygulama',
 ]
 
@@ -56,9 +57,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'firewall_uygulama.urls'
 
-STATIC_URL = 'uygulama/static/uygulama/' # burada static dosyalarımızın olduğu klasörü belirtiyoruz. 
+STATIC_URL = 'uygulama/static/uygulama/'  # burada static dosyalarımızın olduğu klasörü belirtiyoruz.
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'uygulama/static/uygulama/') # burada static dosyalarımızın olduğu klasörü belirtiyoruz.
+    os.path.join(BASE_DIR, 'uygulama/static/uygulama/')  # burada static dosyalarımızın olduğu klasörü belirtiyoruz.
 ]
 TEMPLATES = [
     {
@@ -81,7 +82,7 @@ WSGI_APPLICATION = 'firewall_uygulama.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASESxxxx = {
+DATABASES = {  # burada veritabanı bilgilerimizi giriyoruz. postgresql
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'dbfirewall',
@@ -92,15 +93,14 @@ DATABASESxxxx = {
     }
 }
 
-
-DATABASES = {
+DATABASES_for_try = {  # burada veritabanı bilgilerimizi giriyoruz. sqlite3
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'sqlite3.db',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'sqlite3.db',  # Or path to database file if using sqlite3.
+        'USER': '',  # Not used with sqlite3.
+        'PASSWORD': '',  # Not used with sqlite3.
+        'HOST': '',  # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',  # Set to empty string for default. Not used with sqlite3.
     }
 }
 
