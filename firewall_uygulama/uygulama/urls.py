@@ -7,5 +7,5 @@ app_name = 'uygulama'
 urlpatterns = [
     path('login/', views.login_page, name='login'),
     path('sms/', views.sms, name='sms'),
-    path('page/', views.page, name='page')
+    path('page/', views.main_page, name='page')
 ]

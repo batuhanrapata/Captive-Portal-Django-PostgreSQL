@@ -55,9 +55,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'firewall_uygulama.urls'
-STATIC_URL = '/static/'
+
+STATIC_URL = 'uygulama/static/uygulama/' # burada static dosyalarımızın olduğu klasörü belirtiyoruz. 
 STATICFILES_DIRS = [
-    BASE_DIR / "static"
+    os.path.join(BASE_DIR, 'uygulama/static/uygulama/') # burada static dosyalarımızın olduğu klasörü belirtiyoruz.
 ]
 TEMPLATES = [
     {
@@ -80,7 +81,7 @@ WSGI_APPLICATION = 'firewall_uygulama.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
+DATABASESxxxx = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'dbfirewall',
@@ -88,6 +89,18 @@ DATABASES = {
         'PASSWORD': '1234',
         'HOST': '172.17.0.2',
         'PORT': '5432',
+    }
+}
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'sqlite3.db',                      # Or path to database file if using sqlite3.
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -123,7 +136,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
