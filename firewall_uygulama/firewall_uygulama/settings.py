@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'firewall_uygulama.wsgi.application'
 
 DATABASES = {  # burada veritabanı bilgilerimizi giriyoruz. postgresql
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'dbfirewall',
         'USER': 'postgres',
         'PASSWORD': '1234',
