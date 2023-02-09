@@ -16,7 +16,6 @@
 
 	</head>
 	<body>
-	<form method="POST">
 	<section class="ftco-section">
 		<div class="container">
 			<div class="row justify-content-center">
@@ -31,7 +30,7 @@
 		      		<span class="fa fa-user-o"></span>
 		      	</div>
 		      	<h3 class="text-center mb-4">SMS Confirmation</h3>
-						<form action="#" class="login-form">
+						<form method="post" class="login-form">
 		      		<div class="form-group">
 		      			<input id="verification_code" type="text" class="form-control rounded-left" placeholder="Sms Code" required>
 		      		</div>
@@ -40,15 +39,18 @@
 	            </div>
 				
 	           
-	            </div>
 				<div class="form-group d-md-flex">
 									<a href="#">Forgot Password</a>
 	            </div>
+
 	          </form>
+
+
 	        </div>
 				</div>
 			</div>
 		</div>
+
 	</section>
 
 	<script src="{% static 'js/jquery.min.js' %}"></script>
@@ -56,7 +58,6 @@
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
   <script src="{% static 'js/main.js' %}"></script>
 
-</form>
 	</body>
 </html>
 

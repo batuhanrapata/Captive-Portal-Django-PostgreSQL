@@ -1,0 +1,31 @@
+
+#PostgreSQL için docker-compose dosyası deneme amaçlı
+version: '3.8'
+services:
+  db:
+    image: postgres:13.2
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/postgres/data
+    networks:
+        - captive_portal
+volumes:
+  db:
+    driver: local
+
+
+networks:   # networklerin tanımlanması SADECE DENEME AMAÇLI
+    captive_portal:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: captcha_portal_subnet
+                - gateway: captcha_portal_gateway
+
+

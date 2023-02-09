@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import request
 from django.shortcuts import render, redirect
 from .models import User, Sms, Log
@@ -41,23 +40,21 @@ def sms(request):  # sms doğrulama sayfası (sms doğrulaması)
 
         if check_verification_token(email, validation_code):  # SMS API doğrulama
             ipaddress = get_ip()  # ip adresi
-            give_permission(ipaddress)  # internet varsa session oluştur
+            give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
             return redirect(request, 'templates/page.html')
         else:  # doğrulama başarısız
             return 'Hatalı Kod Girişi'
     return render(request, 'uygulama/sms.html')
 
 
-def main_page(request):  # main sayfa (internet varsa)
+def main_page(request):  # main sayfa (tüm verification başarılı olursa yönlendirilecek sayfa)
     return render(request, 'uygulama/page.html')
 
 
-def give_permission(
-        ipadress):  # internet varsa session oluştur ve iptables ayarları yap (internet yoksa iptables iptal edilir)
-    # remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
+def give_permission(ipadress):  # internet varsa session oluştur ve iptables ayarları yap
+    # remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi //bu kod iptal edildi
 
     remote_IP = ipadress
-    # ip adresi bulmak için
     subprocess.call(
         ["iptables", "-t", "nat", "-I", "PREROUTING", "1", "-s", remote_IP, "-j",
          "ACCEPT"])  # iptables ayarları internete erişim için
@@ -67,15 +64,18 @@ def give_permission(
     if ping == 0:
         return True  # internet var
     else:
-        captive_portal_logout()
         return False  # internet yok
+
+
+# create session
 
 
 # captive portal logout code
 def logout(
         ipadress):  # logout olunca iptables iptal edilir ve login sayfasına yönlendirilir (logout sayfası
     # oluşturulmadı)
-    remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
+    remote_IP = ipadress
+    # remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi //bu kod satırı iptal edildi
     subprocess.call(
         ["iptables", "-t", "nat", "-D", "PREROUTING", "-s", remote_IP, "-j", "ACCEPT"])  # iptables iptal edilir
     subprocess.call(["iptables", "-D", "FORWARD", "-s", remote_IP, "-j", "ACCEPT"])
@@ -88,8 +88,14 @@ def firewall_logs():  # iptables logları alınır
     data.save()
 
 
+def get_ip():  # ip adresi alınır permission verilmesi için!
+    hostname = socket.gethostname()  # hostname
+    IPAddr = socket.gethostbyname(hostname)  # ip adresi
+    return IPAddr
+
+
 def captive_portal_start():  # iptables ayarları yapılır ve captive portal başlatılır dockerfile ile yapılabilir
-    subprocess.call4(
+    subprocess.call(
         ["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", "53", "-j", "ACCEPT"])  # dns portu
     subprocess.call(["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "udp", "--dport", "53", "-j", "ACCEPT"])
     subprocess.call(
@@ -110,7 +116,7 @@ def captive_portal_start():  # iptables ayarları yapılır ve captive portal ba
         pass
 
 
-def captive_portal_logout():  # iptables ayarları iptal edilir ve captive portal kapatılır
+def captive_portal_stop():  # iptables ayarları iptal edilir ve captive portal kapatılır
     subprocess.call(
         ["iptables", "-t", "nat", "-D", "PREROUTING", "-i", IFACE, "-p", "tcp", "--dport", "80", "-j", "DNAT",
          "--to-destination", IP_ADDRESS + ":" + str(PORT)])  # iptables ayarları iptal edilir
@@ -120,18 +126,13 @@ def captive_portal_logout():  # iptables ayarları iptal edilir ve captive porta
         ["iptables", "-D", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", str(PORT), "-d", IP_ADDRESS, "-j",
          "ACCEPT"])
     subprocess.call(["iptables", "-D", "FORWARD", "-i", IFACE, "-j", "DROP"])
-
-
 # onun ip adresine izin verildi mi(whitelist),//çalışmıyor deneme amaçlı
+
+
 def check_ip(ipadress):  # remote ip adresi kontrol edilir ve izin verilmişse True döndürülür
+
     remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
     if remote_IP in ipadress:
         return True
     else:
         return False
-
-
-def get_ip():  # ip adresi alınır
-    hostname = socket.gethostname()  # hostname
-    IPAddr = socket.gethostbyname(hostname)  # ip adresi
-    return IPAddr
