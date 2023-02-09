@@ -73,7 +73,8 @@ def give_permission(
 
 # captive portal logout code
 def logout(
-        ipadress):  # logout olunca iptables iptal edilir ve login sayfasına yönlendirilir (logout sayfası oluşturulmadı)
+        ipadress):  # logout olunca iptables iptal edilir ve login sayfasına yönlendirilir (logout sayfası
+    # oluşturulmadı)
     remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
     subprocess.call(
         ["iptables", "-t", "nat", "-D", "PREROUTING", "-s", remote_IP, "-j", "ACCEPT"])  # iptables iptal edilir
