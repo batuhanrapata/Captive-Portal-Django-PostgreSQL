@@ -17,10 +17,6 @@ httpd = HTTPServer(('', PORT), http.server.SimpleHTTPRequestHandler)  # captive 
 subprocess.call(
         ["iptables", "-t", "nat", "-A", "PREROUTING", "-i", IFACE, "-p", "tcp", "--dport", "80", "-j", "DNAT",
          "--to-destination", IP_ADDRESS + ":" + str(PORT)])  # iptables ayarları yapılır
-
-subprocess.call(
-        ["iptables", "-t", "nat", "-A", "PREROUTING", "-i", IFACE, "-p", "tcp", "--dport", "80", "-j", "DNAT",
-         "--to-destination", IP_ADDRESS + ":" + str(PORT)])  # iptables ayarları yapılır
 try:  # captive portal başlatılır
         httpd.serve_forever()
 except KeyboardInterrupt:
