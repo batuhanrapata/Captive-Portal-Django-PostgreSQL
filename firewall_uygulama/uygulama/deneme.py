@@ -1,2 +1,7 @@
-from sms_api import *
-print(send_verification('kamilinoglii@gmail.com'))
+import socket
+
+hostname = socket.gethostname()
+IPAddr = socket.gethostbyname(hostname)
+
+print("Your Computer Name is:" + hostname)
+print("Your Computer IP Address is:" + IPAddr)
