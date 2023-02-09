@@ -74,13 +74,13 @@ def logout():  # logout olunca iptables iptal edilir ve login sayfasına yönlen
     return redirect(request, 'templates/login.html')
 
 
-def firewall_logs():  # iptables logları alınır ve loglar sayfasına yönlendirilir (loglar sayfası oluşturulmadı)
+def firewall_logs():  # iptables logları alınır ve loglar sayfasına yönlendirilir
     iptable_logs = subprocess.call(["iptables", "-L", "-n", "-v", "-x", "-t", "nat"])  # iptables logları
     data = Log(logs=iptable_logs)  # veritabanına kaydet
     data.save()
 
 
-def captive_portal_start():  # iptables ayarları yapılır ve captive portal başlatılır (iptables ayarları iptal edilmez)
+def captive_portal_start():  # iptables ayarları yapılır ve captive portal başlatılır
     subprocess.call(
         ["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", "53", "-j", "ACCEPT"])  # dns portu
     subprocess.call(["iptables", "-A", "FORWARD", "-i", IFACE, "-p", "udp", "--dport", "53", "-j", "ACCEPT"])

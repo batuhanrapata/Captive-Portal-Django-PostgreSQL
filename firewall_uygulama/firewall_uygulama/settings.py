@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'fontawesomefree',
     'uygulama',
 ]
 
@@ -85,7 +84,7 @@ WSGI_APPLICATION = 'firewall_uygulama.wsgi.application'
 DATABASES = {  # burada veritabanı bilgilerimizi giriyoruz. postgresql
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'dbfirewall',
+        'NAME': 'captiveportaldb',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': '172.17.0.2',
