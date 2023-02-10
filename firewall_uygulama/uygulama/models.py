@@ -32,4 +32,4 @@ class Log(models.Model):  # Log model
     ip_tables = models.CharField(max_length=40, default='iptables ayarları')
 
     def __str__(self):
-        return self.user
+        return self.ip_tables
