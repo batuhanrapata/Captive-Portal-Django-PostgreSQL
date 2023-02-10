@@ -7,6 +7,7 @@ import subprocess
 import http.server
 from http.server import HTTPServer
 import socket
+import time
 
 PORT = 9090  # the port in which the captive portal web server listens
 IFACE = "wlan2"  # the interface that captive portal protects
@@ -47,6 +48,14 @@ def sms(request):  # sms doğrulama sayfası (sms doğrulaması)
     return render(request, 'uygulama/sms.html')
 
 
+# 5dk da bir session süresi uzatılır kontrol edilir loglar veritabanına kaydedilir // deneme amaçlı mantık değişebilir
+def sleep_5_min(request):
+    timeout_session(request)
+    firewall_logs()  # firewall loglarını veritabanına kaydet
+    time.sleep(300)
+    return
+
+
 def main_page(request):  # main sayfa (tüm verification başarılı olursa yönlendirilecek sayfa)
     return render(request, 'uygulama/page.html')
 
@@ -65,9 +74,6 @@ def give_permission(ipadress):  # internet varsa session oluştur ve iptables ay
         return True  # internet var
     else:
         return False  # internet yok
-
-
-# create session
 
 
 # captive portal logout code
@@ -126,13 +132,18 @@ def captive_portal_stop():  # iptables ayarları iptal edilir ve captive portal 
         ["iptables", "-D", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", str(PORT), "-d", IP_ADDRESS, "-j",
          "ACCEPT"])
     subprocess.call(["iptables", "-D", "FORWARD", "-i", IFACE, "-j", "DROP"])
-# onun ip adresine izin verildi mi(whitelist),//çalışmıyor deneme amaçlı
 
 
-def check_ip(ipadress):  # remote ip adresi kontrol edilir ve izin verilmişse True döndürülür
-
-    remote_IP = http.server.BaseHTTPRequestHandler.client_address[0]  # remote ip adresi
-    if remote_IP in ipadress:
+def is_logged_in(request):  # oturum açıp açmadığını kontrol eder
+    if 'name' in request.session:
         return True
     else:
         return False
+
+
+# timeout session
+def timeout_session(request):
+    if is_logged_in(request):
+        request.session.set_expiry(360)  # 360 saniye sonra oturum sonlanır
+    else:
+        pass  # session timeout
