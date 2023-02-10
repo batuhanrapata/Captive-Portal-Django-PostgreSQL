@@ -47,3 +47,4 @@ def chech_otp(tel_no, token):  # sms doğrula
         .verification_checks \
         .create(to=tel_no, code=token)
     return check.status == 'approved'
+####acil acil acil api lazım
