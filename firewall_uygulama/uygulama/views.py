@@ -11,7 +11,8 @@ import time
 from .mailgun_api import send_simple_message
 from django.views import generic
 from .login_form import LoginForm
-from django.http import HttpResponseRedirect
+from .email_form import MailForm
+from django.shortcuts import get_object_or_404
 
 PORT = 9090  # the port in which the captive portal web server listens
 IFACE = "wlan2"  # the interface that captive portal protects
@@ -44,11 +45,12 @@ IP_ADDRESS = "172.16.0.1"  # the ip address of the captive portal (it can be the
 
 def login_page(request):  # login sayfası (kps doğrulaması)
     form = LoginForm()
-    #rendered_form = form1.render("uygulama/login.html")
+    # rendered_form = form1.render("uygulama/login.html")
     form = {'form': form}
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
         if form.is_valid():
+            global name
             name = form.cleaned_data['name']
             surname = form.cleaned_data['surname']
             tc_no = form.cleaned_data['tc_no']
@@ -60,42 +62,53 @@ def login_page(request):  # login sayfası (kps doğrulaması)
                         confirmation=confirmation, email=email)
             data.save()
             if confirmation:  # KPS API doğrulaması başarılı
-                send_simple_message(email)  # Mail API mesaj gönder
-                return render(request, 'uygulama/sms.html')  # sms sayfasına yönlendir
+                global otp
+                otp = send_simple_message(email)  # Mail API mesaj gönder
+                return redirect('uygulama:mail')  # sms sayfasına yönlendir
             else:
                 return 'Hatalı Giriş'  # KPS API doğrulaması başarısız
 
     return render(request, 'uygulama/login.html', form)
 
 
+def mail(request):
+    form = MailForm()
+    form = {'form': form}
+    if request.method == 'POST':
+        otp_verification = request.POST['otp']
+        if otp == otp_verification:  # SMS API doğrulama
+            ipaddress = get_ip()  # ip adresi
+            give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
+            return render(request,'uygulama/page.html', {'name': name})
+        else:
+            return 'Hatalı Kod Girişi'
+    return render(request, 'uygulama/mail.html', form)
 
+
+def main_page(request):  # main sayfa (tüm verification başarılı olursa yönlendirilecek sayfa)
+    return render(request, 'uygulama/page.html')
 
 
 def sms(request):  # sms doğrulama sayfası (sms doğrulaması)/ simdilik mail ile doğrulama
     if request.method == 'POST':
-
-        otp_verification = request.GET.get('otp')
-        otp = request.POST['otp']
-
+        otp_verification = request.POST['otp']
         if otp == otp_verification:  # SMS API doğrulama
             ipaddress = get_ip()  # ip adresi
             give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
-            return redirect(request, 'templates/page.html')
+            return redirect(request, 'uygulama:page')
         else:
             return 'Hatalı Kod Girişi'
     return render(request, 'uygulama/sms.html')
 
 
 # 5dk da bir session süresi uzatılır kontrol edilir loglar veritabanına kaydedilir // deneme amaçlı mantık değişebilir
+
+
 def sleep_5_min(request):
     timeout_session(request)
     firewall_logs()  # firewall loglarını veritabanına kaydet
     time.sleep(300)
     return
-
-
-def main_page(request):  # main sayfa (tüm verification başarılı olursa yönlendirilecek sayfa)
-    return render(request, 'uygulama/page.html')
 
 
 def give_permission(ipadress):  # internet varsa session oluştur ve iptables ayarları yap
