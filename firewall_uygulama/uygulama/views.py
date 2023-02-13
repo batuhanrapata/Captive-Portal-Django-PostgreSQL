@@ -66,7 +66,7 @@ def login_page(request):  # login sayfası (kps doğrulaması)
                 otp = send_simple_message(email)  # Mail API mesaj gönder
                 return redirect('uygulama:mail')  # sms sayfasına yönlendir
             else:
-                return 'Hatalı Giriş'  # KPS API doğrulaması başarısız
+                return '<b> Hatalı Kimlik Bilgisi Girişi </b>' # KPS API doğrulaması başarısız
 
     return render(request, 'uygulama/login.html', form)
 
@@ -81,7 +81,7 @@ def mail(request):
             give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
             return render(request,'uygulama/page.html', {'name': name})
         else:
-            return 'Hatalı Kod Girişi'
+            return '<b> Hatalı Doğrulama Kod Girişi </b>'
     return render(request, 'uygulama/mail.html', form)
 
 
