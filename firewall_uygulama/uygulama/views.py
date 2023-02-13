@@ -17,7 +17,7 @@ PORT = 9090  # the port in which the captive portal web server listens
 IFACE = "wlan2"  # the interface that captive portal protects
 IP_ADDRESS = "172.16.0.1"  # the ip address of the captive portal (it can be the IP of IFACE)
 
-"""class login_page(generic.TemplateView):
+"""class login_page(generic.TemplateView): # login sayfası kullanılabilir
     template_name = 'uygulama/login.html'
 
     def post(self,request):
@@ -44,8 +44,8 @@ IP_ADDRESS = "172.16.0.1"  # the ip address of the captive portal (it can be the
 
 def login_page(request):  # login sayfası (kps doğrulaması)
     form = LoginForm()
-    rendered_form = form.render("uygulama/login.html")
-    form = {'form': rendered_form}
+    #rendered_form = form1.render("uygulama/login.html")
+    form = {'form': form}
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
         if form.is_valid():
@@ -68,26 +68,7 @@ def login_page(request):  # login sayfası (kps doğrulaması)
     return render(request, 'uygulama/login.html', form)
 
 
-"""def login_page(request):  # login sayfası (kps doğrulaması)
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        surname = request.POST.get('surname')
-        tc_no = request.POST.get('tc_no')
-        birth_date = request.POST.get('birth_date')
-        tel_no = request.POST.get('tel_no')
-        email = request.POST.get('email')
-        confirmation = kps(name, surname, tc_no, birth_date)  # KPS API doğrulaması
-        data = User(name=name, surname=surname, tc_no=tc_no, birth_date=birth_date, tel_no=tel_no,
-                    confirmation=confirmation, email=email)
-        data.save()
-        if confirmation:  # KPS API doğrulaması başarılı
-            otp = send_simple_message(email)  # Mail API mesaj gönder
-            return render(request, 'uygulama/sms.html', {'otp': otp})  # sms sayfasına yönlendir
-        else:
-            return 'Hatalı Giriş'  # KPS API doğrulaması başarısız
 
-    return render(request, 'uygulama/login.html')
-"""
 
 
 def sms(request):  # sms doğrulama sayfası (sms doğrulaması)/ simdilik mail ile doğrulama
