@@ -4,6 +4,8 @@
  * Copyright 2011-2019 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
+
+
 :root {
   --blue: #007bff;
   --indigo: #6610f2;
@@ -8244,6 +8246,16 @@ textarea.form-control {
   top: 0;
   left: 0; }
 
+.login-wrap .form-group{
+display:flex !important;
+flex-direction:column !important;
+}
+
+.form-group .helptext{
+font-size:.75rem !important;
+color: #9898ff !important;
+}
+
 /* Create the checkmark/indicator (hidden when not checked) */
 .checkmark:after {
   content: "\f0c8";
@@ -8298,3 +8310,7 @@ textarea.form-control {
         border: 1px solid transparent;
         background: #1089ff;
         color: #fff; }
+
+
+
+

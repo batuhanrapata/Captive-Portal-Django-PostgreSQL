@@ -1,7 +1,3 @@
-import socket
+from kps_api import kps
 
-hostname = socket.gethostname()
-IPAddr = socket.gethostbyname(hostname)
-
-print("Your Computer Name is:" + hostname)
-print("Your Computer IP Address is:" + IPAddr)
+print(kps("batuhan", "rapata", "37585646262", "1999"))

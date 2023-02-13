@@ -8,42 +8,99 @@ import http.server
 from http.server import HTTPServer
 import socket
 import time
+from .mailgun_api import send_simple_message
+from django.views import generic
+from .login_form import LoginForm
+from django.http import HttpResponseRedirect
 
 PORT = 9090  # the port in which the captive portal web server listens
 IFACE = "wlan2"  # the interface that captive portal protects
 IP_ADDRESS = "172.16.0.1"  # the ip address of the captive portal (it can be the IP of IFACE)
 
+"""class login_page(generic.TemplateView):
+    template_name = 'uygulama/login.html'
+
+    def post(self,request):
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            surname = form.cleaned_data['surname']
+            tc_no = form.cleaned_data['tc_no']
+            birth_date = form.cleaned_data['birth_date']
+            tel_no = form.cleaned_data['tel_no']
+            email = form.cleaned_data['email']
+            confirmation = kps(name, surname, tc_no, birth_date)  # KPS API doğrulaması
+            data = User(name=name, surname=surname, tc_no=tc_no, birth_date=birth_date, tel_no=tel_no,
+                        confirmation=confirmation, email=email)
+            data.save()
+            if confirmation:  # KPS API doğrulaması başarılı
+                otp = send_simple_message(email)  # Mail API mesaj gönder
+                return render(request, 'uygulama/sms.html')  # sms sayfasına yönlendir
+            else:
+                return 'Hatalı Giriş'  # KPS API doğrulaması başarısız
+
+"""
+
 
 def login_page(request):  # login sayfası (kps doğrulaması)
+    form = LoginForm()
+    rendered_form = form.render("uygulama/login.html")
+    form = {'form': rendered_form}
     if request.method == 'POST':
-        name = request.POST['name']
-        surname = request.POST['surname']
-        tc_no = request.POST['tc_no']
-        birth_date = request.POST['birth_date']
-        tel_no = request.POST['tel_no']
-        email = request.POST['email']
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            surname = form.cleaned_data['surname']
+            tc_no = form.cleaned_data['tc_no']
+            birth_date = form.cleaned_data['birth_date']
+            tel_no = form.cleaned_data['tel_no']
+            email = form.cleaned_data['email']
+            confirmation = kps(name, surname, tc_no, birth_date)  # KPS API doğrulaması
+            data = User(name=name, surname=surname, tc_no=tc_no, birth_date=birth_date, tel_no=tel_no,
+                        confirmation=confirmation, email=email)
+            data.save()
+            if confirmation:  # KPS API doğrulaması başarılı
+                send_simple_message(email)  # Mail API mesaj gönder
+                return render(request, 'uygulama/sms.html')  # sms sayfasına yönlendir
+            else:
+                return 'Hatalı Giriş'  # KPS API doğrulaması başarısız
+
+    return render(request, 'uygulama/login.html', form)
+
+
+"""def login_page(request):  # login sayfası (kps doğrulaması)
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        surname = request.POST.get('surname')
+        tc_no = request.POST.get('tc_no')
+        birth_date = request.POST.get('birth_date')
+        tel_no = request.POST.get('tel_no')
+        email = request.POST.get('email')
         confirmation = kps(name, surname, tc_no, birth_date)  # KPS API doğrulaması
         data = User(name=name, surname=surname, tc_no=tc_no, birth_date=birth_date, tel_no=tel_no,
-                    confirmation=confirmation, email=email)  # veritabanına kaydet
-        data.save()  # veritabanına kaydet
+                    confirmation=confirmation, email=email)
+        data.save()
         if confirmation:  # KPS API doğrulaması başarılı
-            send_verification(email)  # SMS API mesaj gönder
-            return redirect(request, 'templates/sms.html')  # sms sayfasına yönlendir
+            otp = send_simple_message(email)  # Mail API mesaj gönder
+            return render(request, 'uygulama/sms.html', {'otp': otp})  # sms sayfasına yönlendir
         else:
             return 'Hatalı Giriş'  # KPS API doğrulaması başarısız
+
     return render(request, 'uygulama/login.html')
+"""
 
 
-def sms(request):  # sms doğrulama sayfası (sms doğrulaması)
+def sms(request):  # sms doğrulama sayfası (sms doğrulaması)/ simdilik mail ile doğrulama
     if request.method == 'POST':
-        validation_code = request.POST['validation_code']  # sms doğrulama kodu
-        email = request.session.get('email')
 
-        if check_verification_token(email, validation_code):  # SMS API doğrulama
+        otp_verification = request.GET.get('otp')
+        otp = request.POST['otp']
+
+        if otp == otp_verification:  # SMS API doğrulama
             ipaddress = get_ip()  # ip adresi
             give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
             return redirect(request, 'templates/page.html')
-        else:  # doğrulama başarısız
+        else:
             return 'Hatalı Kod Girişi'
     return render(request, 'uygulama/sms.html')
 
