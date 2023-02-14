@@ -109,10 +109,9 @@ def logout(ipadress):  # logout iptables iptal edilir
 
 # captive portal logout code
 def firewall_logs():  # iptables logları alınır
-    iptable_logs = subprocess.call(["iptables", "-L", "-n", "-v", "-x", "-t", "nat"])  # iptables logları
-    data.save()
+    iptable_logs = subprocess.call(["iptables", "-L", "-n", "-v", "-x", "-t", "nat"])  # iptables logları alınır
 
-
+    return iptable_logs
 def get_ip():  # ip adresi alınır permission verilmesi için!
     hostname = socket.gethostname()  # hostname
     IPAddr = socket.gethostbyname(hostname)  # ip adresi
