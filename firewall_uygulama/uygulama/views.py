@@ -10,7 +10,7 @@ from .kps_api import *
 from .mailgun_api import send_simple_message
 from .login_form import LoginForm
 from .email_form import MailForm
-from firewall_uygulama.uygulama.myFunctions.user_settings import *
+from .user_settings import *
 
 load_dotenv()
 
