@@ -96,18 +96,20 @@ class SingedOutView(generic.TemplateView):  # logout sayfası
         return render(request, self.template_name)
 
 
-def send_mail(request):  # mail gönderme fonksiyonu
+def send_mail(request):  # SEND AGAIN MAIL
     global otp
     otp = send_simple_message(email)
     return redirect('uygulama:mail')
 
 
-def sms(request):  # sms doğrulama sayfası (sms doğrulaması)/ simdilik mail ile doğrulama
+
+#sendgrid twilio api çöp olduğu için mailgun api kullanıldı
+def sms(request):
     if request.method == 'POST':
         otp_verification = request.POST['otp']
-        if otp == otp_verification:  # SMS API doğrulama
-            ipaddress = get_ip()  # ip adresi
-            give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
+        if otp == otp_verification:
+            ipaddress = get_ip()
+            give_permission(ipaddress)
             return redirect(request, 'uygulama:page')
         else:
             return 'Hatalı Kod Girişi'
