@@ -37,7 +37,7 @@ class email_verification(models.Model):  # Email model
 
 class Log(models.Model):  # Log model
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    sms = models.ForeignKey(Sms, on_delete=models.CASCADE)
+    sms = models.ForeignKey(Sms, on_delete=models.CASCADE, default=1)
     email_ver = models.ForeignKey(email_verification, on_delete=models.CASCADE, default=1)
     timestamp = models.DateTimeField(auto_now_add=True)
     ip_tables = models.CharField(max_length=40, default='iptables ayarları')

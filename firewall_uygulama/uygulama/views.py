@@ -50,19 +50,22 @@ def mail(request):
     if request.method == 'POST':
         otp_verification = request.POST['otp']
         if otp == otp_verification:  # SMS API doğrulama
+            global verification_data
             verification_data = email_verification(user=data, email_code=otp, confirmation=True)
             verification_data.save()  # email doğrulama kodu doğruysa veritabanına kaydet
             global ipaddress
             ipaddress = get_ip()
             give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
-            return render(request, 'uygulama/page.html', {'name': name})
+            return redirect('uygulama:page')
         else:
             return HttpResponse('<b> Hatalı Doğrulama Kod Girişi </b>')
     return render(request, 'uygulama/mail.html', form)
 
 
 def main_page(request):  # main sayfa (tüm verification başarılı olursa yönlendirilecek sayfa)
-    return render(request, 'uygulama/page.html')
+    log = Log(user=data, email_ver=verification_data, ip_tables=ipaddress)
+    log.save()
+    return render(request, 'uygulama/page.html', {'name': name})
 
 
 class SingedOutView(generic.TemplateView):  # logout sayfası
@@ -76,9 +79,10 @@ class SingedOutView(generic.TemplateView):  # logout sayfası
         return render(request, self.template_name)
 
 
-
 def send_mail(request):  # mail gönderme fonksiyonu
-    otp=send_simple_message(email)
+    global otp
+    otp = send_simple_message(email)
+    return redirect('uygulama:mail')
 
 
 def give_permission(ipadress):  # internet izin verme fonksiyonu // iptables ayarları
@@ -106,7 +110,6 @@ def logout(ipadress):  # logout iptables iptal edilir
 # captive portal logout code
 def firewall_logs():  # iptables logları alınır
     iptable_logs = subprocess.call(["iptables", "-L", "-n", "-v", "-x", "-t", "nat"])  # iptables logları
-    data = Log(logs=iptable_logs)  # veritabanına kaydet
     data.save()
 
 
@@ -114,18 +117,6 @@ def get_ip():  # ip adresi alınır permission verilmesi için!
     hostname = socket.gethostname()  # hostname
     IPAddr = socket.gethostbyname(hostname)  # ip adresi
     return IPAddr
-
-
-def captive_portal_stop():  # iptables ayarları iptal edilir ve captive portal kapatılır
-    subprocess.call(
-        ["iptables", "-t", "nat", "-D", "PREROUTING", "-i", IFACE, "-p", "tcp", "--dport", "80", "-j", "DNAT",
-         "--to-destination", IP_ADDRESS + ":" + str(PORT)])  # iptables ayarları iptal edilir
-    subprocess.call(["iptables", "-D", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", "53", "-j", "ACCEPT"])
-    subprocess.call(["iptables", "-D", "FORWARD", "-i", IFACE, "-p", "udp", "--dport", "53", "-j", "ACCEPT"])
-    subprocess.call(
-        ["iptables", "-D", "FORWARD", "-i", IFACE, "-p", "tcp", "--dport", str(PORT), "-d", IP_ADDRESS, "-j",
-         "ACCEPT"])
-    subprocess.call(["iptables", "-D", "FORWARD", "-i", IFACE, "-j", "DROP"])
 
 
 def sms(request):  # sms doğrulama sayfası (sms doğrulaması)/ simdilik mail ile doğrulama
