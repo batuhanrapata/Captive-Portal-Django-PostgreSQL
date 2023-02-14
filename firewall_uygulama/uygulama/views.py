@@ -4,9 +4,10 @@ from django.views import View, generic
 
 from .models import User, Log, email_verification
 from dotenv import load_dotenv
+import sys
 
-from firewall_uygulama.uygulama.myFunctions.kps_api import *
-from firewall_uygulama.uygulama.myFunctions.mailgun_api import send_simple_message
+from .kps_api import *
+from .mailgun_api import send_simple_message
 from .login_form import LoginForm
 from .email_form import MailForm
 from firewall_uygulama.uygulama.myFunctions.user_settings import *
