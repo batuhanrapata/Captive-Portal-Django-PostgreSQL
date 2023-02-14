@@ -10,4 +10,5 @@ urlpatterns = [
     path('sms/', views.sms, name='sms'),
     path('page/', views.main_page, name='page'),
     path('mail/', views.mail, name='mail'),
+    path('singed_out/', views.SingedOutView.as_view(), name='singed_out'),
 ]

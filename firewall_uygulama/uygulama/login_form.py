@@ -13,7 +13,7 @@ class LoginForm(forms.Form):
                             widget=forms.TextInput(attrs={'placeholder': 'T.C. Kimlik Numaranız'}),
                             error_messages={'required': 'Lütfen T.C. Kimlik Numaranızı giriniz.'},
                             help_text='T.C. Kimlik Numaranızı giriniz.')
-    birth_date = forms.CharField(max_length=8, required=True,
+    birth_date = forms.CharField(max_length=4, required=True,
                                  widget=forms.TextInput(attrs={'placeholder': 'Doğum Tarihiniz'}),
                                  error_messages={'required': 'Lütfen doğum tarihinizi giriniz.'},
                                  help_text='Doğum tarihinizi giriniz. (Örn: 1999)')

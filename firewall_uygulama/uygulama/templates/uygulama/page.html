@@ -6,8 +6,8 @@
 </head>
 <body>
 							{% csrf_token %}
-    <p>Welcome, {{ name }}. Thanks for logging in.</p>
-
+    <p>Welcome, {{ name }}. Thanks for logging in. </p>
+    <p><a href="{% url 'uygulama:singed_out' %}">Logout</a></p>
 
 
 </body>

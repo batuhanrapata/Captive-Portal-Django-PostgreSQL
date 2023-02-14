@@ -33,3 +33,13 @@ class Log(models.Model):  # Log model
 
     def __str__(self):
         return self.ip_tables
+
+
+class email_verification(models.Model):  # Email model
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    email_code = models.CharField(max_length=6)
+    confirmation = models.BooleanField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.email_code
