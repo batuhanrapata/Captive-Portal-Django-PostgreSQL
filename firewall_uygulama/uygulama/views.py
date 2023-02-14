@@ -10,19 +10,24 @@ from django.views import generic
 from .login_form import LoginForm
 from .email_form import MailForm
 from django.http import HttpResponse
+from django.views import View
 
-PORT = 9090  # the port in which the captive portal web server listens
-IFACE = "wlan2"  # the interface that captive portal protects
-IP_ADDRESS = "172.16.0.1"  # the ip address of the captive portal (it can be the IP of IFACE)
+load_dotenv()
+
+PORT = os.environ.get("PORT")
+IFACE = os.environ.get("IFACE")
+IP_ADDRESS = os.environ.get("IP_ADDRESS")
 
 
-def login_page(request):  # login sayfası (kps doğrulaması)
-    form = LoginForm()
-    form = {'form': form}
-    if request.method == 'POST':
-        form = LoginForm(data=request.POST)
+class login_view(View):
+    def get(self, request):
+        form = LoginForm()
+        return render(request, 'uygulama/login.html', {'form': form})
+
+    def post(self, request):
+        form = LoginForm(request.POST)
         if form.is_valid():
-            global name, email, data
+            global name, surname, tc_no, birth_date, tel_no, email, confirmation, data
             name = form.cleaned_data['name']
             surname = form.cleaned_data['surname']
             tc_no = form.cleaned_data['tc_no']
@@ -36,36 +41,47 @@ def login_page(request):  # login sayfası (kps doğrulaması)
             if confirmation:  # KPS API doğrulaması başarılı
                 global otp
                 otp = send_simple_message(email)  # Mail API mesaj gönder
-
                 return redirect('uygulama:mail')  # mail sayfasına yönlendir
             else:
                 return HttpResponse('<b> Hatalı Kimlik Bilgisi Girişi </b>')  # KPS API doğrulaması başarısız
+        return render(request, 'uygulama/login.html', {'form': form})
 
-    return render(request, 'uygulama/login.html', form)
+
+class mail_view(View):
+    def get(self, request):
+        form = MailForm()
+        return render(request, 'uygulama/mail.html', {'form': form})
+
+    def post(self, request):
+        form = MailForm(request.POST)
+        if form.is_valid():
+            otp_verification = request.POST['otp']
+            if otp == otp_verification:  # SMS API doğrulama
+                global verification_data
+                verification_data = email_verification(user=data, email_code=otp, confirmation=True)
+                verification_data.save()  # email doğrulama kodu doğruysa veritabanına kaydet
+                global ipaddress
+                ipaddress = get_ip()
+                request.session['logged_in'] = True
+                give_permission(
+                    ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
+                return redirect('uygulama:page')
+            else:
+                return HttpResponse('<b> Hatalı Doğrulama Kod Girişi </b>')
+        return render(request, 'uygulama/mail.html', {'form': form})
 
 
-def mail(request):
-    form = MailForm()
-    form = {'form': form}
-    if request.method == 'POST':
-        otp_verification = request.POST['otp']
-        if otp == otp_verification:  # SMS API doğrulama
-            global verification_data
-            verification_data = email_verification(user=data, email_code=otp, confirmation=True)
-            verification_data.save()  # email doğrulama kodu doğruysa veritabanına kaydet
-            global ipaddress
-            ipaddress = get_ip()
-            give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
-            return redirect('uygulama:page')
+class main_page_view(generic.TemplateView):  # main sayfa (tüm verification başarılı olursa yönlendirilecek sayfa)
+    template_name = 'uygulama/page.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.session.get('logged_in'):
+            log = Log(user=data, email_ver=verification_data, ip_tables=ipaddress)
+            log.save()
+            return render(request, self.template_name, {'name': name})
         else:
-            return HttpResponse('<b> Hatalı Doğrulama Kod Girişi </b>')
-    return render(request, 'uygulama/mail.html', form)
+            return redirect('uygulama:login')
 
-
-def main_page(request):  # main sayfa (tüm verification başarılı olursa yönlendirilecek sayfa)
-    log = Log(user=data, email_ver=verification_data, ip_tables=ipaddress)
-    log.save()
-    return render(request, 'uygulama/page.html', {'name': name})
 
 
 class SingedOutView(generic.TemplateView):  # logout sayfası
@@ -75,6 +91,7 @@ class SingedOutView(generic.TemplateView):  # logout sayfası
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
+        request.session['logged_in'] = False # session silinir
         logout(ipaddress)
         return render(request, self.template_name)
 

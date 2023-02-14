@@ -21,6 +21,9 @@ class Sms(models.Model):  # Sms model
     confirmation = models.BooleanField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name_plural = 'Sms'
+
     def __str__(self):
         return self.sms_code
 
@@ -30,6 +33,9 @@ class email_verification(models.Model):  # Email model
     email_code = models.CharField(max_length=6)
     confirmation = models.BooleanField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Email'
 
     def __str__(self):
         return self.email_code
@@ -41,6 +47,9 @@ class Log(models.Model):  # Log model
     email_ver = models.ForeignKey(email_verification, on_delete=models.CASCADE, default=1)
     timestamp = models.DateTimeField(auto_now_add=True)
     ip_tables = models.CharField(max_length=40, default='iptables ayarları')
+
+    class Meta:
+        verbose_name_plural = 'Log'
 
     def __str__(self):
         return self.ip_tables
