@@ -11,7 +11,7 @@ from .login_form import LoginForm
 from .email_form import MailForm
 from django.http import HttpResponse
 from django.views import View
-
+from dotenv import load_dotenv
 load_dotenv()
 
 PORT = os.environ.get("PORT")
@@ -20,6 +20,7 @@ IP_ADDRESS = os.environ.get("IP_ADDRESS")
 
 
 class login_view(View):
+
     def get(self, request):
         form = LoginForm()
         return render(request, 'uygulama/login.html', {'form': form})
@@ -83,7 +84,6 @@ class main_page_view(generic.TemplateView):  # main sayfa (tüm verification ba�
             return redirect('uygulama:login')
 
 
-
 class SingedOutView(generic.TemplateView):  # logout sayfası
     template_name = 'uygulama/singed_out.html'
 
@@ -91,7 +91,7 @@ class SingedOutView(generic.TemplateView):  # logout sayfası
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        request.session['logged_in'] = False # session silinir
+        request.session['logged_in'] = False  # session silinir
         logout(ipaddress)
         return render(request, self.template_name)
 
