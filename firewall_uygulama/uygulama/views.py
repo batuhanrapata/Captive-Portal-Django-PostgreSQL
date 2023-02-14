@@ -1,17 +1,15 @@
-from django.http import request
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View, generic
 
-from .models import User, Sms, Log, email_verification
+from .models import User, Log, email_verification
 from dotenv import load_dotenv
 
-from .sms_api import send_verification, check_verification_token
-from .kps_api import *
-from .mailgun_api import send_simple_message
+from firewall_uygulama.uygulama.myFunctions.kps_api import *
+from firewall_uygulama.uygulama.myFunctions.mailgun_api import send_simple_message
 from .login_form import LoginForm
 from .email_form import MailForm
-from .user_settings import *
+from firewall_uygulama.uygulama.myFunctions.user_settings import *
 
 load_dotenv()
 
