@@ -25,16 +25,6 @@ class Sms(models.Model):  # Sms model
         return self.sms_code
 
 
-class Log(models.Model):  # Log model
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    sms = models.ForeignKey(Sms, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    ip_tables = models.CharField(max_length=40, default='iptables ayarları')
-
-    def __str__(self):
-        return self.ip_tables
-
-
 class email_verification(models.Model):  # Email model
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     email_code = models.CharField(max_length=6)
@@ -43,3 +33,14 @@ class email_verification(models.Model):  # Email model
 
     def __str__(self):
         return self.email_code
+
+
+class Log(models.Model):  # Log model
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    sms = models.ForeignKey(Sms, on_delete=models.CASCADE)
+    email_ver = models.ForeignKey(email_verification, on_delete=models.CASCADE, default=1)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    ip_tables = models.CharField(max_length=40, default='iptables ayarları')
+
+    def __str__(self):
+        return self.ip_tables
