@@ -13,6 +13,7 @@ domain = os.environ.get("MAILGUN_DOMAIN")
 def generate_otp(length=6):
     return ''.join(random.choices(string.digits, k=length))
 
+
 def send_simple_message(email):
     otp = generate_otp()
     requests.post(

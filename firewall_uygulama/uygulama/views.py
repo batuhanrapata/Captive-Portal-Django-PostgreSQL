@@ -4,15 +4,12 @@ from .models import User, Sms, Log, email_verification
 from .sms_api import *
 from .kps_api import *
 import subprocess
-import http.server
-from http.server import HTTPServer
 import socket
-import time
 from .mailgun_api import send_simple_message
 from django.views import generic
 from .login_form import LoginForm
 from .email_form import MailForm
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 
 PORT = 9090  # the port in which the captive portal web server listens
 IFACE = "wlan2"  # the interface that captive portal protects
@@ -40,9 +37,9 @@ def login_page(request):  # login sayfası (kps doğrulaması)
                 global otp
                 otp = send_simple_message(email)  # Mail API mesaj gönder
 
-                return redirect('uygulama:mail')  # sms sayfasına yönlendir
+                return redirect('uygulama:mail')  # mail sayfasına yönlendir
             else:
-                return '<b> Hatalı Kimlik Bilgisi Girişi </b>'  # KPS API doğrulaması başarısız
+                return HttpResponse('<b> Hatalı Kimlik Bilgisi Girişi </b>')  # KPS API doğrulaması başarısız
 
     return render(request, 'uygulama/login.html', form)
 
@@ -53,14 +50,14 @@ def mail(request):
     if request.method == 'POST':
         otp_verification = request.POST['otp']
         if otp == otp_verification:  # SMS API doğrulama
-            verification_data = email_verification(User=data, email_code=otp, confirmation=True)
+            verification_data = email_verification(user=data, email_code=otp, confirmation=True)
             verification_data.save()  # email doğrulama kodu doğruysa veritabanına kaydet
             global ipaddress
             ipaddress = get_ip()
             give_permission(ipaddress)  # internet varsa session oluştur //oluşturulmadı sadece iptables ayarları var
             return render(request, 'uygulama/page.html', {'name': name})
         else:
-            return '<b> Hatalı Doğrulama Kod Girişi </b>'
+            return HttpResponse('<b> Hatalı Doğrulama Kod Girişi </b>')
     return render(request, 'uygulama/mail.html', form)
 
 
@@ -72,13 +69,16 @@ class SingedOutView(generic.TemplateView):  # logout sayfası
     template_name = 'uygulama/singed_out.html'
 
     def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
         logout(ipaddress)
         return render(request, self.template_name)
 
 
-def send_again_mail(request):
-    otp = send_simple_message(email)  # Mail API mesaj gönder yeni otp oluştur ve gönderir
-    return redirect('uygulama:mail')  # sms sayfasına yönlendir
+
+def send_mail(request):  # mail gönderme fonksiyonu
+    otp=send_simple_message(email)
 
 
 def give_permission(ipadress):  # internet izin verme fonksiyonu // iptables ayarları

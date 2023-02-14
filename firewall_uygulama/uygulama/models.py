@@ -7,7 +7,7 @@ class User(models.Model):  # User model
     surname = models.CharField(max_length=40)
     tc_no = models.CharField(max_length=11)
     birth_date = models.CharField(max_length=4)
-    tel_no = models.CharField(max_length=10)
+    tel_no = models.CharField(max_length=11)
     confirmation = models.BooleanField()
     email = models.CharField(max_length=40)
     timestamp = models.DateTimeField(auto_now_add=True)

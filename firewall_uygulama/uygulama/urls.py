@@ -1,7 +1,6 @@
 from django.urls import path
 
 from . import views
-from .views import login_page
 
 app_name = 'uygulama'
 
@@ -11,4 +10,5 @@ urlpatterns = [
     path('page/', views.main_page, name='page'),
     path('mail/', views.mail, name='mail'),
     path('singed_out/', views.SingedOutView.as_view(), name='singed_out'),
+    path('send_mail', views.send_mail, name='send_mail'),
 ]

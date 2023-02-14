@@ -28,3 +28,6 @@ class LoginForm(forms.Form):
 
     class Meta:
         fields = ['name', 'surname', 'tc_no', 'birth_date', 'tel_no', 'email']
+
+
+
