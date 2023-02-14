@@ -1,15 +1,16 @@
 from django.http import request
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.views import View, generic
+
 from .models import User, Sms, Log, email_verification
-from .sms_api import *
+from dotenv import load_dotenv
+
+from .sms_api import send_verification, check_verification_token
 from .kps_api import *
 from .mailgun_api import send_simple_message
-from django.views import generic
 from .login_form import LoginForm
 from .email_form import MailForm
-from django.http import HttpResponse
-from django.views import View
-from dotenv import load_dotenv
 from .user_settings import *
 
 load_dotenv()
@@ -17,7 +18,6 @@ load_dotenv()
 PORT = os.environ.get("PORT")
 IFACE = os.environ.get("IFACE")
 IP_ADDRESS = os.environ.get("IP_ADDRESS")
-
 
 class login_view(View):
 
@@ -28,7 +28,7 @@ class login_view(View):
     def post(self, request):
         form = LoginForm(request.POST)
         if form.is_valid():
-            global name, surname, tc_no, birth_date, tel_no, email, confirmation, data
+            global name, email, data
             name = form.cleaned_data['name']
             surname = form.cleaned_data['surname']
             tc_no = form.cleaned_data['tc_no']
@@ -58,10 +58,9 @@ class mail_view(View):
         if form.is_valid():
             otp_verification = request.POST['otp']
             if otp == otp_verification:  # SMS API doğrulama
-                global verification_data
+                global verification_data, ipaddress
                 verification_data = email_verification(user=data, email_code=otp, confirmation=True)
                 verification_data.save()  # email doğrulama kodu doğruysa veritabanına kaydet
-                global ipaddress
                 ipaddress = get_ip()
                 request.session['logged_in'] = True
                 give_permission(
@@ -102,8 +101,7 @@ def send_mail(request):  # SEND AGAIN MAIL
     return redirect('uygulama:mail')
 
 
-
-#sendgrid twilio api çöp olduğu için mailgun api kullanıldı
+# sendgrid twilio api çöp olduğu için mailgun api kullanıldı
 def sms(request):
     if request.method == 'POST':
         otp_verification = request.POST['otp']
