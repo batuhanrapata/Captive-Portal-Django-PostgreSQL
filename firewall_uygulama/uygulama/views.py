@@ -4,7 +4,6 @@ from django.views import View, generic
 
 from .models import User, Log, email_verification
 from dotenv import load_dotenv
-import sys
 
 from .kps_api import *
 from .mailgun_api import send_simple_message
@@ -17,6 +16,7 @@ load_dotenv()
 PORT = os.environ.get("PORT")
 IFACE = os.environ.get("IFACE")
 IP_ADDRESS = os.environ.get("IP_ADDRESS")
+
 
 class login_view(View):
 
@@ -102,7 +102,10 @@ def send_mail(request):  # SEND AGAIN MAIL
 
 # sendgrid twilio api çöp olduğu için mailgun api kullanıldı
 def sms(request):
-    if request.method == 'POST':
+    return "<h1> SMS API </h1>"
+
+
+"""    if request.method == 'POST':
         otp_verification = request.POST['otp']
         if otp == otp_verification:
             ipaddress = get_ip()
@@ -111,3 +114,4 @@ def sms(request):
         else:
             return 'Hatalı Kod Girişi'
     return render(request, 'uygulama/sms.html')
+"""
