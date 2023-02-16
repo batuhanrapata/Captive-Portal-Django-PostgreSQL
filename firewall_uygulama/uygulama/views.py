@@ -5,11 +5,13 @@ from django.views import View, generic
 from .models import User, Log, email_verification
 from dotenv import load_dotenv
 
-from .kps_api import *
-from .mailgun_api import send_simple_message
+from .utils.kps_api import *
+from .utils.mailgun_api import send_simple_message
+from .utils.user_settings import *
+
+
 from .login_form import LoginForm
 from .email_form import MailForm
-from .user_settings import *
 
 load_dotenv()
 
