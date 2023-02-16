@@ -1,4 +1,4 @@
-from firewall_uygulama.uygulama.myFunctions.kps_api import kps
+from firewall_uygulama.uygulama.utils.kps_api import kps
 
 print(kps("batuhan", "rapata", "37585646262", "1999"))
 
