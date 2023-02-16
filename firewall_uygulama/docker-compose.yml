@@ -14,6 +14,24 @@ services:
       - db:/postgres/data
     networks:
         - captive_portal
+  captive-portal:
+    image: captive-portal:latest
+    restart: always
+    ports:
+      - '90:90'
+      - '443:443'
+    volumes:
+      - ./firewall_uygulama:/uygulama
+    networks:
+        - captive_portal
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+
+
+
 volumes:
   db:
     driver: local
