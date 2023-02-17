@@ -15,8 +15,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework import routers
+from cApi import views
 
-urlpatterns = [
+
+router=routers.DefaultRouter()
+router.register(r'djangousers', views.djangoUserViewSet, basename='djangousers')
+router.register(r'log', views.LogViewSet, basename='log')
+router.register(r'email', views.EmailViewSet, basename='email')
+router.register(r'user', views.UserViewSet, basename='user')
+urlpatterns = router.urls
+
+
+urlpatterns += [
     path('uygulama/', include('uygulama.urls')),
+    path('cApi/', include('cApi.urls')),
     path('admin/', admin.site.urls),
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
 ]
